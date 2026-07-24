@@ -938,7 +938,6 @@ export default function App() {
 
           <div className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-6 border-t border-slate-900/60 text-[9px] text-slate-600 text-center uppercase tracking-wider font-semibold">
             <p>© 2026 Commercial Gas & Electricity Ltd (Trading as CGE Business Energy). All rights reserved.</p>
-            <p>Designed with pristine layout, typography, and interactive controls for {CONTACT_INFO.web}.</p>
           </div>
 
         </div>
