@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  /* Official Brand Colors */
+  --color-brand-red: #F62D0C;
+  --color-brand-dark-blue: #2E5F9E;
+  --color-brand-orange: #ED4610;
+  --color-brand-light-blue: #4987B7;
+  --color-brand-coral: #F7A595;
+}
+
+/* Custom continuous scanner beam animation for the bill analyzer */
+@keyframes scanner {
+  0% { top: 0%; opacity: 1; }
+  50% { top: 100%; opacity: 1; }
+  100% { top: 0%; opacity: 0.3; }
+}
+
+.animate-scanner {
+  animation: scanner 2.5s infinite linear;
+}
+

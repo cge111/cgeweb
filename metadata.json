@@ -1,0 +1,6 @@
+{
+  "name": "CGE Business Energy Services",
+  "description": "Interactive landing page and utility savings calculator for CGE Business Energy Services, a leading UK business energy brokerage specializing in commercial electricity and gas contracts, renewals, and multi-site consolidation.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
