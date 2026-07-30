@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { X, Shield, ArrowRight, ArrowLeft, CheckCircle2, Flame, Zap, Phone, Building2 } from 'lucide-react';
+import { motion } from 'motion/react';
+import { X, Shield, CheckCircle2, Flame, Zap, Phone, MapPin, Mail, User, Building2 } from 'lucide-react';
 import { EnergyLead } from '../types';
 
 interface QuoteFormProps {
@@ -8,17 +8,11 @@ interface QuoteFormProps {
   onClose: () => void;
   defaultData?: {
     fuelType: 'electricity' | 'gas' | 'both';
-    contractType: 'renewal' | 'new' | 'multisite';
-    numSites: number;
-    currentSpend: number;
-    currentSupplier?: string;
-    additionalDetails?: string;
   };
   onSubmitSuccess?: (lead: EnergyLead) => void;
 }
 
 export default function QuoteForm({ isOpen, onClose, defaultData, onSubmitSuccess }: QuoteFormProps) {
-  const [step, setStep] = useState<number>(1);
   const [submitted, setSubmitted] = useState<boolean>(false);
   const [leadId, setLeadId] = useState<string>('');
   const [isSending, setIsSending] = useState<boolean>(false);
@@ -26,38 +20,19 @@ export default function QuoteForm({ isOpen, onClose, defaultData, onSubmitSucces
 
   // Form Fields
   const [fuelType, setFuelType] = useState<'electricity' | 'gas' | 'both'>('both');
-  const [contractType, setContractType] = useState<'renewal' | 'new' | 'multisite'>('renewal');
-  const [numSites, setNumSites] = useState<number>(1);
-  const [currentSpend, setCurrentSpend] = useState<number>(12000);
-  const [businessName, setBusinessName] = useState<string>('');
+  const [postcode, setPostcode] = useState<string>('');
   const [contactName, setContactName] = useState<string>('');
   const [phone, setPhone] = useState<string>('');
   const [email, setEmail] = useState<string>('');
-  const [currentSupplier, setCurrentSupplier] = useState<string>('');
-  const [contractExpiryDate, setContractExpiryDate] = useState<string>('');
-  const [additionalDetails, setAdditionalDetails] = useState<string>('');
 
   // Populate from defaults if provided
   useEffect(() => {
     if (defaultData) {
       if (defaultData.fuelType) setFuelType(defaultData.fuelType);
-      if (defaultData.contractType) setContractType(defaultData.contractType);
-      if (defaultData.numSites) setNumSites(defaultData.numSites);
-      if (defaultData.currentSpend) setCurrentSpend(defaultData.currentSpend);
-      if (defaultData.currentSupplier) setCurrentSupplier(defaultData.currentSupplier);
-      if (defaultData.additionalDetails) setAdditionalDetails(defaultData.additionalDetails);
     }
   }, [defaultData]);
 
   if (!isOpen) return null;
-
-  const handleNext = () => {
-    setStep(prev => prev + 1);
-  };
-
-  const handlePrev = () => {
-    setStep(prev => prev - 1);
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -67,17 +42,11 @@ export default function QuoteForm({ isOpen, onClose, defaultData, onSubmitSucces
     const uniqueId = 'LEAD-' + Math.floor(1000 + Math.random() * 9000);
     const newLead: EnergyLead = {
       id: uniqueId,
-      businessName,
       contactName,
       phone,
       email,
+      postcode,
       fuelType,
-      contractType,
-      numSites,
-      currentAnnualSpend: currentSpend,
-      currentSupplier,
-      contractExpiryDate,
-      additionalDetails,
       submittedAt: new Date().toLocaleString('en-GB', { timeZone: 'Europe/London' }),
       status: 'new'
     };
@@ -143,276 +112,125 @@ export default function QuoteForm({ isOpen, onClose, defaultData, onSubmitSucces
         <div className="p-8 overflow-y-auto flex-grow">
           
           {!submitted ? (
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit} className="space-y-5">
               
-              {/* Stepper Header */}
-              <div className="flex items-center gap-1.5 justify-center mb-8">
-                {[1, 2, 3].map((s) => (
-                  <React.Fragment key={s}>
-                    <div className={`w-8 h-8 rounded-none border flex items-center justify-center text-xs font-mono font-bold transition-all ${
-                      step >= s 
-                        ? 'bg-brand-red border-brand-red text-white font-black' 
-                        : 'bg-slate-50 border-slate-200 text-slate-400'
-                    }`}>
-                      {s}
-                    </div>
-                    {s < 3 && (
-                      <div className={`w-14 h-[1px] ${
-                        step > s ? 'bg-brand-red' : 'bg-slate-200'
-                      }`} />
-                    )}
-                  </React.Fragment>
-                ))}
-              </div>
-
-              {/* STEP 1: Core Configuration */}
-              {step === 1 && (
-                <div className="space-y-4">
-                  <h5 className="font-black uppercase tracking-wider text-slate-900 text-xs mb-3 border-l-2 border-brand-red pl-3">Step 1: Utility & Contract Setup</h5>
-                  
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Energy Service Required</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { id: 'electricity', label: 'Electricity', icon: Zap },
-                        { id: 'gas', label: 'Gas', icon: Flame },
-                        { id: 'both', label: 'Dual Fuel', icon: Building2 }
-                      ].map((item) => (
-                        <button
-                          type="button"
-                          key={item.id}
-                          onClick={() => setFuelType(item.id as any)}
-                          className={`flex flex-col items-center p-4 rounded-none border-2 cursor-pointer transition-all ${
-                            fuelType === item.id 
-                              ? 'border-brand-red bg-brand-dark-blue/5 text-brand-red font-bold' 
-                              : 'border-slate-100 bg-slate-50 hover:bg-slate-100/50 text-slate-500'
-                          }`}
-                        >
-                          <item.icon className="w-4 h-4 mb-1" />
-                          <span className="text-[10px] uppercase font-bold tracking-wider">{item.label}</span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Agreement Type</label>
-                    <div className="grid grid-cols-3 gap-2">
-                      {[
-                        { id: 'renewal', label: 'Renewal' },
-                        { id: 'new', label: 'New Meter' },
-                        { id: 'multisite', label: 'Multi-site' }
-                      ].map((item) => (
-                        <button
-                          type="button"
-                          key={item.id}
-                          onClick={() => setContractType(item.id as any)}
-                          className={`p-3 rounded-none border-2 text-center text-[10px] uppercase tracking-wider font-bold cursor-pointer transition-all ${
-                            contractType === item.id 
-                              ? 'border-brand-red bg-brand-dark-blue/5 text-brand-red' 
-                              : 'border-slate-100 bg-slate-50 hover:bg-slate-100/50 text-slate-500'
-                          }`}
-                        >
-                          {item.label}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Number of Sites</label>
-                      <input
-                        type="number"
-                        min="1"
-                        max="200"
-                        value={numSites}
-                        onChange={(e) => setNumSites(Number(e.target.value))}
-                        className="w-full text-xs p-3 rounded-none border border-slate-200 focus:outline-none focus:border-brand-red bg-slate-50 font-semibold"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Est. Current Annual Spend (£)</label>
-                      <input
-                        type="number"
-                        min="100"
-                        step="500"
-                        value={currentSpend}
-                        onChange={(e) => setCurrentSpend(Number(e.target.value))}
-                        className="w-full text-xs p-3 rounded-none border border-slate-200 focus:outline-none focus:border-brand-red bg-slate-50 font-mono font-bold"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="flex justify-end pt-4">
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-2">Energy Service Required</label>
+                <div className="grid grid-cols-3 gap-2">
+                  {[
+                    { id: 'electricity', label: 'Electricity', icon: Zap },
+                    { id: 'gas', label: 'Gas', icon: Flame },
+                    { id: 'both', label: 'Gas + Electricity', icon: Building2 }
+                  ].map((item) => (
                     <button
                       type="button"
-                      onClick={handleNext}
-                      className="bg-brand-red hover:bg-brand-orange text-white py-3 px-5 rounded-none text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 cursor-pointer"
-                    >
-                      Next Step
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 2: Business & Current Situation */}
-              {step === 2 && (
-                <div className="space-y-4">
-                  <h5 className="font-black uppercase tracking-wider text-slate-900 text-xs mb-3 border-l-2 border-brand-red pl-3">Step 2: Business Details</h5>
-                  
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Registered Business Name *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Acme Logistics Ltd"
-                      value={businessName}
-                      onChange={(e) => setBusinessName(e.target.value)}
-                      className="w-full text-xs p-3 rounded-none border border-slate-200 focus:outline-none focus:border-brand-red bg-slate-50 font-semibold"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Current Supplier (Optional)</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. British Gas, SSE"
-                        value={currentSupplier}
-                        onChange={(e) => setCurrentSupplier(e.target.value)}
-                        className="w-full text-xs p-3 rounded-none border border-slate-200 focus:outline-none focus:border-brand-red bg-slate-50 font-semibold"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Contract End Date (Optional)</label>
-                      <input
-                        type="date"
-                        value={contractExpiryDate}
-                        onChange={(e) => setContractExpiryDate(e.target.value)}
-                        className="w-full text-xs p-3 rounded-none border border-slate-200 focus:outline-none focus:border-brand-red bg-slate-50 font-mono"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Any Specific Requirements / Bill Details</label>
-                    <textarea
-                      rows={3}
-                      placeholder="e.g. Need to lock in a new meter. Or, looking for cheaper prices for a renewal than the £3,400 quoted by EON."
-                      value={additionalDetails}
-                      onChange={(e) => setAdditionalDetails(e.target.value)}
-                      className="w-full text-xs p-3 rounded-none border border-slate-200 focus:outline-none focus:border-brand-red bg-slate-50 resize-none font-semibold"
-                    />
-                  </div>
-
-                  <div className="flex justify-between pt-4">
-                    <button
-                      type="button"
-                      onClick={handlePrev}
-                      className="text-slate-500 hover:text-slate-800 font-bold text-xs uppercase tracking-wider flex items-center gap-1 cursor-pointer"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      Back
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleNext}
-                      className="bg-brand-red hover:bg-brand-orange text-white py-3 px-5 rounded-none text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 cursor-pointer"
-                    >
-                      Next Step
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              )}
-
-              {/* STEP 3: Contact Details & Submit */}
-              {step === 3 && (
-                <div className="space-y-4">
-                  <h5 className="font-black uppercase tracking-wider text-slate-900 text-xs mb-3 border-l-2 border-brand-red pl-3">Step 3: Contact Representative</h5>
-                  
-                  <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Your Full Name *</label>
-                    <input
-                      type="text"
-                      required
-                      placeholder="e.g. Jane Smith"
-                      value={contactName}
-                      onChange={(e) => setContactName(e.target.value)}
-                      className="w-full text-xs p-3 rounded-none border border-slate-200 focus:outline-none focus:border-brand-red bg-slate-50 font-semibold"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Work Email Address *</label>
-                      <input
-                        type="email"
-                        required
-                        placeholder="e.g. j.smith@acme.co.uk"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        className="w-full text-xs p-3 rounded-none border border-slate-200 focus:outline-none focus:border-brand-red bg-slate-50 font-semibold"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1">Direct Phone Number *</label>
-                      <input
-                        type="tel"
-                        required
-                        placeholder="e.g. 07951 234054"
-                        value={phone}
-                        onChange={(e) => setPhone(e.target.value)}
-                        className="w-full text-xs p-3 rounded-none border border-slate-200 focus:outline-none focus:border-brand-red bg-slate-50 font-semibold"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="bg-slate-50 text-slate-600 p-4 rounded-none border border-slate-200 flex items-start gap-3">
-                    <Shield className="w-4 h-4 text-brand-dark-blue mt-0.5 flex-shrink-0" />
-                    <p className="text-[10px] leading-relaxed uppercase tracking-wider font-semibold">
-                      By submitting, you agree to allow Commercial Gas & Electricity Ltd (CGE) to perform a direct comparison on your behalf. We will never share or sell your details.
-                    </p>
-                  </div>
-
-                  {errorMsg && (
-                    <div className="bg-red-50 text-red-700 p-3 rounded-none border border-red-200 text-xs font-semibold flex items-center gap-2">
-                      <span>⚠️</span> <span>{errorMsg}</span>
-                    </div>
-                  )}
-
-                  <div className="flex justify-between pt-4">
-                    <button
-                      type="button"
-                      onClick={handlePrev}
-                      disabled={isSending}
-                      className="text-slate-500 hover:text-slate-800 font-bold text-xs uppercase tracking-wider flex items-center gap-1 cursor-pointer disabled:opacity-50"
-                    >
-                      <ArrowLeft className="w-4 h-4" />
-                      Back
-                    </button>
-                    <button
-                      type="submit"
-                      disabled={isSending}
-                      className={`bg-brand-red hover:bg-brand-orange text-white py-3.5 px-6 rounded-none text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 cursor-pointer ${
-                        isSending ? 'opacity-70 cursor-not-allowed' : ''
+                      key={item.id}
+                      onClick={() => setFuelType(item.id as any)}
+                      className={`flex flex-col items-center p-4 rounded-none border-2 cursor-pointer transition-all ${
+                        fuelType === item.id 
+                          ? 'border-brand-red bg-brand-dark-blue/5 text-brand-red font-bold' 
+                          : 'border-slate-100 bg-slate-50 hover:bg-slate-100/50 text-slate-500'
                       }`}
                     >
-                      {isSending ? 'Sending...' : 'Submit Quote Request'}
-                      {isSending ? (
-                        <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                        </svg>
-                      ) : (
-                        <CheckCircle2 className="w-4 h-4" />
-                      )}
+                      <item.icon className="w-4 h-4 mb-1" />
+                      <span className="text-[10px] uppercase font-bold tracking-wider">{item.label}</span>
                     </button>
-                  </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Business Postcode */}
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 text-brand-red" /> Business Postcode *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. IG2 7TP"
+                  value={postcode}
+                  onChange={(e) => setPostcode(e.target.value)}
+                  className="w-full text-xs p-3 rounded-none border border-slate-200 focus:outline-none focus:border-brand-red bg-slate-50 font-bold uppercase tracking-wider"
+                />
+              </div>
+
+              {/* Your Name */}
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 flex items-center gap-1">
+                  <User className="w-3.5 h-3.5 text-brand-red" /> Your Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Robert Sterling"
+                  value={contactName}
+                  onChange={(e) => setContactName(e.target.value)}
+                  className="w-full text-xs p-3 rounded-none border border-slate-200 focus:outline-none focus:border-brand-red bg-slate-50 font-semibold"
+                />
+              </div>
+
+              {/* Contact Grid: Email & Phone */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 flex items-center gap-1">
+                    <Mail className="w-3.5 h-3.5 text-brand-red" /> Email Address *
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    placeholder="e.g. robert@company.co.uk"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="w-full text-xs p-3 rounded-none border border-slate-200 focus:outline-none focus:border-brand-red bg-slate-50 font-semibold"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 flex items-center gap-1">
+                    <Phone className="w-3.5 h-3.5 text-brand-red" /> Phone Number *
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    placeholder="e.g. 07951 234054"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full text-xs p-3 rounded-none border border-slate-200 focus:outline-none focus:border-brand-red bg-slate-50 font-semibold"
+                  />
+                </div>
+              </div>
+
+              <div className="bg-slate-50 text-slate-600 p-4 rounded-none border border-slate-200 flex items-start gap-3">
+                <Shield className="w-4 h-4 text-brand-dark-blue mt-0.5 flex-shrink-0" />
+                <p className="text-[10px] leading-relaxed uppercase tracking-wider font-semibold">
+                  By submitting, you agree to allow Commercial Gas & Electricity Ltd (CGE) to perform a direct comparison on your behalf. We will never share or sell your details.
+                </p>
+              </div>
+
+              {errorMsg && (
+                <div className="bg-red-50 text-red-700 p-3 rounded-none border border-red-200 text-xs font-semibold flex items-center gap-2">
+                  <span>⚠️</span> <span>{errorMsg}</span>
                 </div>
               )}
+
+              <div className="flex justify-end pt-2">
+                <button
+                  type="submit"
+                  disabled={isSending}
+                  className={`bg-brand-red hover:bg-brand-orange text-white py-3.5 px-8 rounded-none text-xs font-bold uppercase tracking-widest flex items-center gap-1.5 cursor-pointer ${
+                    isSending ? 'opacity-70 cursor-not-allowed' : ''
+                  }`}
+                >
+                  {isSending ? 'Sending...' : 'Submit Quote Request'}
+                  {isSending ? (
+                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                  ) : (
+                    <CheckCircle2 className="w-4 h-4" />
+                  )}
+                </button>
+              </div>
 
             </form>
           ) : (
@@ -436,7 +254,7 @@ export default function QuoteForm({ isOpen, onClose, defaultData, onSubmitSucces
                 <div className="font-bold text-slate-950 tracking-widest text-xs border-b border-slate-200 pb-2">What happens next?</div>
                 <div className="flex gap-2.5 text-slate-600">
                   <span className="font-bold text-brand-red">1.</span>
-                  <span>We will cross-reference your consumption parameters with E.ON Next, British Gas, and other partners.</span>
+                  <span>We will cross-reference your postcode rates with E.ON Next, British Gas, and other partners.</span>
                 </div>
                 <div className="flex gap-2.5 text-slate-600">
                   <span className="font-bold text-brand-red">2.</span>
@@ -450,7 +268,7 @@ export default function QuoteForm({ isOpen, onClose, defaultData, onSubmitSucces
 
               <div className="flex justify-center gap-3 pt-4">
                 <a 
-                  href={`https://wa.me/447951234054?text=Hello,%20I%20have%20submitted%20lead%20${leadId}%20for%20my%20business%20${encodeURIComponent(businessName)}.%20Please%20verify%20rates.`}
+                  href={`https://wa.me/447951234054?text=Hello,%20I%20have%20submitted%20lead%20${leadId}%20for%20postcode%20${encodeURIComponent(postcode)}.%20Please%20verify%20rates.`}
                   target="_blank"
                   rel="noreferrer"
                   className="bg-brand-red hover:bg-brand-orange text-white font-bold py-3.5 px-5 rounded-none text-xs uppercase tracking-widest flex items-center gap-1.5"

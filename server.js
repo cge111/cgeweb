@@ -51,47 +51,35 @@ app.post('/api/quote', async (req, res) => {
   try {
     const lead = req.body;
 
-    if (!lead || !lead.businessName || !lead.contactName || !lead.email || !lead.phone) {
-      return res.status(400).json({ error: 'Missing required lead fields.' });
+    if (!lead || !lead.contactName || !lead.email || !lead.phone || !lead.postcode) {
+      return res.status(400).json({ error: 'Missing required fields: postcode, contactName, email, or phone.' });
     }
 
     const {
       id,
-      businessName,
       contactName,
       phone,
       email,
+      postcode,
       fuelType,
-      contractType,
-      numSites,
-      currentAnnualSpend,
-      currentSupplier,
-      contractExpiryDate,
-      additionalDetails,
       submittedAt
     } = lead;
 
-    console.log(`[Server] Received new quote request: ${id} for ${businessName}`);
+    console.log(`[Server] Received new quote request: ${id} from Postcode ${postcode}`);
 
     // Construct the email details
     const mailOptions = {
-      from: `"${businessName} (via CGE Quote Form)" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER}>`,
+      from: `"${contactName} (via CGE Quote Form)" <${process.env.SMTP_FROM_EMAIL || process.env.SMTP_USER}>`,
       to: process.env.SMTP_TO_EMAIL || 'hello@cgeenergy.co.uk',
       replyTo: email,
       subject: `CGE Business Energy Quote Request - ${id}`,
       text: `Hello CGE Team,\n\nA new business energy quote request has been submitted.\n\n` +
             `Reference ID: ${id}\n` +
-            `Business Name: ${businessName}\n` +
             `Contact Representative: ${contactName}\n` +
+            `Business Postcode: ${postcode}\n` +
             `Phone Number: ${phone}\n` +
             `Email Address: ${email}\n` +
-            `Service Required: ${fuelType.toUpperCase()}\n` +
-            `Agreement Type: ${contractType.toUpperCase()}\n` +
-            `Number of Sites: ${numSites}\n` +
-            `Estimated Annual Spend: £${(currentAnnualSpend || 0).toLocaleString()}\n` +
-            `Current Supplier: ${currentSupplier || 'Not provided'}\n` +
-            `Contract End Date: ${contractExpiryDate || 'Not provided'}\n` +
-            `Additional Details: ${additionalDetails || 'None'}\n\n` +
+            `Service Required: ${fuelType.toUpperCase() === 'BOTH' ? 'GAS + ELECTRICITY' : fuelType.toUpperCase()}\n` +
             `Submitted At: ${submittedAt}\n`,
       html: `
         <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 600px; border: 1px solid #ddd; padding: 25px; border-radius: 5px;">
@@ -104,12 +92,12 @@ app.post('/api/quote', async (req, res) => {
               <td style="padding: 10px; border: 1px solid #eee; font-family: monospace; font-weight: bold; color: #ED4610;">${id}</td>
             </tr>
             <tr>
-              <td style="padding: 10px; font-weight: bold; border: 1px solid #eee;">Business Name:</td>
-              <td style="padding: 10px; border: 1px solid #eee;">${businessName}</td>
-            </tr>
-            <tr style="background-color: #f9f9f9;">
               <td style="padding: 10px; font-weight: bold; border: 1px solid #eee;">Contact Name:</td>
               <td style="padding: 10px; border: 1px solid #eee;">${contactName}</td>
+            </tr>
+            <tr style="background-color: #f9f9f9;">
+              <td style="padding: 10px; font-weight: bold; border: 1px solid #eee;">Business Postcode:</td>
+              <td style="padding: 10px; border: 1px solid #eee; font-weight: bold; text-transform: uppercase;">${postcode}</td>
             </tr>
             <tr>
               <td style="padding: 10px; font-weight: bold; border: 1px solid #eee;">Phone Number:</td>
@@ -121,34 +109,9 @@ app.post('/api/quote', async (req, res) => {
             </tr>
             <tr>
               <td style="padding: 10px; font-weight: bold; border: 1px solid #eee;">Service Required:</td>
-              <td style="padding: 10px; border: 1px solid #eee; text-transform: uppercase; font-weight: bold;">${fuelType}</td>
-            </tr>
-            <tr style="background-color: #f9f9f9;">
-              <td style="padding: 10px; font-weight: bold; border: 1px solid #eee;">Agreement Type:</td>
-              <td style="padding: 10px; border: 1px solid #eee; text-transform: capitalize;">${contractType}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; font-weight: bold; border: 1px solid #eee;">Number of Sites:</td>
-              <td style="padding: 10px; border: 1px solid #eee;">${numSites}</td>
-            </tr>
-            <tr style="background-color: #f9f9f9;">
-              <td style="padding: 10px; font-weight: bold; border: 1px solid #eee;">Annual Spend:</td>
-              <td style="padding: 10px; border: 1px solid #eee; font-family: monospace; font-weight: bold;">&pound;${(currentAnnualSpend || 0).toLocaleString()}</td>
-            </tr>
-            <tr>
-              <td style="padding: 10px; font-weight: bold; border: 1px solid #eee;">Current Supplier:</td>
-              <td style="padding: 10px; border: 1px solid #eee;">${currentSupplier || '<em>Not provided</em>'}</td>
-            </tr>
-            <tr style="background-color: #f9f9f9;">
-              <td style="padding: 10px; font-weight: bold; border: 1px solid #eee;">Contract End Date:</td>
-              <td style="padding: 10px; border: 1px solid #eee;">${contractExpiryDate || '<em>Not provided</em>'}</td>
+              <td style="padding: 10px; border: 1px solid #eee; text-transform: uppercase; font-weight: bold;">${fuelType === 'both' ? 'GAS + ELECTRICITY' : fuelType}</td>
             </tr>
           </table>
-          
-          <div style="background-color: #f5f5f5; border-left: 4px solid #2E5F9E; padding: 15px; margin-bottom: 20px;">
-            <h4 style="margin: 0 0 5px 0; color: #2E5F9E; font-size: 13px; text-transform: uppercase;">Specific Requirements / Bill Details:</h4>
-            <p style="margin: 0; font-size: 13px;">${additionalDetails ? additionalDetails.replace(/\n/g, '<br>') : '<em>None specified</em>'}</p>
-          </div>
           
           <div style="font-size: 11px; color: #777; border-top: 1px solid #eee; padding-top: 10px; margin-top: 20px; text-align: center;">
             Lead submitted on <strong>${submittedAt}</strong> via CGE Business Energy Services landing page.

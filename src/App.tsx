@@ -24,29 +24,25 @@ import {
 } from 'lucide-react';
 
 import CGELogo from './components/CGELogo';
-import SavingsCalculator from './components/SavingsCalculator';
-import BillAnalyzer from './components/BillAnalyzer';
-import MultiSitePlanner from './components/MultiSitePlanner';
 import QuoteForm from './components/QuoteForm';
+import gasFlameImg from './gas_flame.jpg';
 import LeadPortal from './components/LeadPortal';
 
 import { CONTACT_INFO, FAQS, OBJECTIONS, SUPPLIERS, CASE_STUDIES } from './data';
 import { EnergyLead } from './types';
 
 export default function App() {
-  const [activeTab, setActiveTab] = useState<'calculator' | 'auditor' | 'multisite'>('calculator');
   const [isQuoteFormOpen, setIsQuoteFormOpen] = useState<boolean>(false);
   const [isLeadPortalOpen, setIsLeadPortalOpen] = useState<boolean>(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   
-  // Custom default data to pass to the multi-step quote form
+  // Estimator States
+  const [estFuel, setEstFuel] = useState<'electricity' | 'gas' | 'both'>('both');
+  const [estSpend, setEstSpend] = useState<number>(500);
+
+  // Custom default data to pass to the simplified quote form
   const [quoteFormDefaults, setQuoteFormDefaults] = useState<{
     fuelType: 'electricity' | 'gas' | 'both';
-    contractType: 'renewal' | 'new' | 'multisite';
-    numSites: number;
-    currentSpend: number;
-    currentSupplier?: string;
-    additionalDetails?: string;
   } | undefined>(undefined);
 
   // FAQ Expanded States
@@ -55,14 +51,9 @@ export default function App() {
   // Supplier filter state
   const [supplierFilter, setSupplierFilter] = useState<'all' | 'green' | 'fixed'>('all');
 
-  // Open multi-step form with customized starting parameters
+  // Open quote form with customized starting parameters
   const handleOpenQuoteFormWithDefaults = (defaults: {
     fuelType: 'electricity' | 'gas' | 'both';
-    contractType: 'renewal' | 'new' | 'multisite';
-    numSites: number;
-    currentSpend: number;
-    currentSupplier?: string;
-    additionalDetails?: string;
   }) => {
     setQuoteFormDefaults(defaults);
     setIsQuoteFormOpen(true);
@@ -70,10 +61,7 @@ export default function App() {
 
   const handleOpenGeneralQuote = () => {
     setQuoteFormDefaults({
-      fuelType: 'both',
-      contractType: 'renewal',
-      numSites: 1,
-      currentSpend: 12000
+      fuelType: 'both'
     });
     setIsQuoteFormOpen(true);
   };
@@ -115,7 +103,7 @@ export default function App() {
 
           {/* Desktop Navigation links */}
           <nav className="hidden lg:flex items-center gap-8 text-xs font-bold uppercase tracking-wider text-gray-600">
-            <a href="#interactive-suite" className="hover:text-brand-red transition-colors">Interactive Suite</a>
+            <a href="#interactive-suite" className="hover:text-brand-red transition-colors">Savings Estimator</a>
             <a href="#services" className="hover:text-brand-red transition-colors">Broker Services</a>
             <a href="#partners" className="hover:text-brand-red transition-colors">Energy Partners</a>
             <a href="#objections" className="hover:text-brand-red transition-colors">FAQ</a>
@@ -159,7 +147,7 @@ export default function App() {
                   onClick={() => setMobileMenuOpen(false)}
                   className="block p-3 rounded-none hover:bg-gray-50 text-xs font-bold uppercase tracking-wider text-gray-700"
                 >
-                  Interactive Workspace
+                  Savings Estimator
                 </a>
                 <a 
                   href="#services" 
@@ -226,32 +214,48 @@ export default function App() {
                 20+ Years UK Energy Industry Authority
               </div>
               
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-950 tracking-tight leading-[1.1] md:max-w-xl lg:max-w-none mx-auto lg:mx-0 uppercase">
-                SLASH Your Business <span className="text-brand-red font-extrabold underline decoration-brand-red decoration-2 underline-offset-8">Gas & Electric</span> Bills By Up To 40%
-              </h1>
-
-              <p className="text-gray-500 text-sm sm:text-base max-w-2xl mx-auto lg:mx-0 leading-relaxed font-semibold">
-                As a leading UK energy broker based in London, we negotiate directly with <strong className="text-gray-900">20+ major utility providers</strong>. Whether you have complex site accounts, want to renew your contract at a cheaper price than previous suppliers, or require a brand new meter connection — CGE secures your lowest rate.
-              </p>
+              <div className="space-y-4 text-left">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-950 tracking-tight leading-[1.1] uppercase">
+                  Save Time, Save Money
+                </h1>
+                <p className="text-base font-extrabold text-brand-dark-blue uppercase tracking-wider mb-2">
+                  We:
+                </p>
+                <ul className="space-y-3 pl-1">
+                  {[
+                    "Compare Energy Prices & Find the Best Deals",
+                    "Arrange New Energy Contracts",
+                    "Renew Energy Contracts",
+                    "Manage Multi-Site Energy Accounts"
+                  ].map((bullet, bidx) => (
+                    <li key={bidx} className="flex items-start gap-2.5 text-sm sm:text-base font-bold text-gray-800">
+                      <CheckCircle className="w-5 h-5 text-brand-red shrink-0 mt-0.5" />
+                      <span>{bullet}</span>
+                    </li>
+                  ))}
+                </ul>
+                <div className="inline-block bg-brand-dark-blue/5 border-l-4 border-brand-red px-5 py-3.5 mt-4 text-sm font-black text-brand-dark-blue uppercase tracking-wider">
+                  Fix Your Energy Prices for 1–5 Years
+                </div>
+              </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start">
+              <div className="flex flex-col sm:flex-row gap-3 justify-center lg:justify-start pt-4">
                 <a
                   href="#interactive-suite"
                   className="bg-brand-red hover:bg-brand-orange text-white font-bold px-8 py-4 rounded-none text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors border border-brand-orange/20"
                 >
-                  Calculate Your Savings
+                  Estimate Your Savings
                   <ArrowRight className="w-4 h-4" />
                 </a>
                 
-                <a
-                  href="#interactive-suite"
-                  onClick={() => setActiveTab('auditor')}
-                  className="bg-white hover:bg-gray-50 text-gray-800 border-2 border-gray-200 font-bold px-8 py-4 rounded-none text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors"
+                <button
+                  onClick={handleOpenGeneralQuote}
+                  className="bg-white hover:bg-gray-50 text-gray-800 border-2 border-gray-200 font-bold px-8 py-4 rounded-none text-xs uppercase tracking-widest flex items-center justify-center gap-2 transition-colors cursor-pointer animate-none"
                 >
-                  Upload & Analyze Bill
+                  Get A Free Quote
                   <Layers className="w-4 h-4 text-gray-400" />
-                </a>
+                </button>
               </div>
 
               {/* Credibility highlights */}
@@ -271,33 +275,17 @@ export default function App() {
               </div>
             </div>
 
-            {/* HERO RIGHT: Quick Features Grid (5 cols) */}
-            <div className="lg:col-span-5 bg-white border border-gray-200 p-8 rounded-none shadow-sm space-y-6">
-              <h3 className="text-sm font-black text-gray-950 uppercase tracking-widest flex items-center gap-2 border-b border-gray-100 pb-4">
-                <ShieldCheck className="w-5 h-5 text-brand-dark-blue" />
-                Why UK SMEs Choose CGE
-              </h3>
-
-              <div className="space-y-5">
-                {[
-                  { title: "Renewal Contract Discounts", desc: "Negotiating directly with your current or previous supplier to beat renewal quotes." },
-                  { title: "Direct Price Matrix Access", desc: "Wholesale tariff indexes locked in 12 months ahead, protecting you from inflation." },
-                  { title: "Multi-site Consolidation", desc: "Combine multiple business premises and meters into a single, unified contract." },
-                  { title: "No Credit Check Entry", desc: "New businesses welcome with flexible commercial credit criteria." }
-                ].map((item, idx) => (
-                  <div key={idx} className="flex gap-4.5 items-start">
-                    <div className="bg-slate-50 border border-slate-200 text-brand-dark-blue font-mono font-bold text-xs w-6 h-6 flex items-center justify-center rounded-none flex-shrink-0 mt-0.5">
-                      {idx + 1}
-                    </div>
-                    <div>
-                      <h4 className="text-xs font-bold uppercase tracking-wider text-gray-900">{item.title}</h4>
-                      <p className="text-[11px] text-gray-500 font-semibold mt-1 leading-relaxed">{item.desc}</p>
-                    </div>
-                  </div>
-                ))}
+            {/* HERO RIGHT: Premium Visual Image Card */}
+            <div className="lg:col-span-5 relative overflow-hidden group border border-gray-200 p-2 bg-white shadow-sm flex flex-col justify-between">
+              <div className="aspect-[4/3] sm:aspect-square relative overflow-hidden bg-slate-900">
+                <img 
+                  src={gasFlameImg} 
+                  alt="Blue Gas Flame Burner" 
+                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-brand-dark-blue/40 via-transparent to-transparent"></div>
               </div>
-
-              <div className="bg-slate-50 p-5 rounded-none border border-slate-200 text-center">
+              <div className="p-5 text-center bg-slate-50 border-t border-gray-100 mt-2">
                 <span className="text-[10px] text-gray-400 font-bold uppercase tracking-widest block">Immediate support callback lines</span>
                 <span className="text-base font-extrabold text-brand-dark-blue mt-1 block tracking-wider">{CONTACT_INFO.phone}</span>
               </div>
@@ -307,52 +295,98 @@ export default function App() {
         </div>
       </section>
 
-      {/* 4. MAIN INTERACTIVE SUITE SECTION (TABS) */}
+      {/* 4. 3-SECOND SAVINGS ESTIMATOR SECTION */}
       <section className="py-20 bg-slate-950 text-white relative border-b border-slate-900" id="interactive-suite">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           
           <div className="text-center max-w-3xl mx-auto mb-12">
             <h2 className="text-3xl sm:text-4xl font-black uppercase tracking-tight mb-3">
-              Automated Utility Management Suite
+              3-Second Savings Estimator
             </h2>
             <p className="text-slate-400 text-xs sm:text-sm uppercase font-semibold tracking-wider">
-              Take complete control of your procurement strategy. Try our three custom interactive utility engines below to audit documents, calculate savings, and plan site consolidations.
+              Select your service type and monthly spend to instantly view your estimated yearly CGE contract savings.
             </p>
-
-            {/* TAB SELECTOR HEADER */}
-            <div className="inline-flex flex-wrap p-1.5 bg-slate-900 border border-slate-800 rounded-none gap-1.5 mt-8 justify-center">
-              {[
-                { id: 'calculator', label: 'Tariff Savings Calculator', icon: Zap },
-                { id: 'auditor', label: 'Bill PDF Scanner / Auditor', icon: FileSpreadsheet },
-                { id: 'multisite', label: 'Multi-Site Consolidator', icon: Layers }
-              ].map((tab) => (
-                <button
-                  key={tab.id}
-                  onClick={() => setActiveTab(tab.id as any)}
-                  className={`flex items-center gap-2 px-5 py-3 rounded-none text-[10px] font-bold uppercase tracking-widest transition-colors cursor-pointer ${
-                    activeTab === tab.id
-                      ? 'bg-brand-red text-white'
-                      : 'hover:bg-slate-800 text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  <tab.icon className="w-4 h-4" />
-                  {tab.label}
-                </button>
-              ))}
-            </div>
           </div>
 
-          {/* TAB CONTENT CARDS */}
-          <div>
-            {activeTab === 'calculator' && (
-              <SavingsCalculator onOpenQuoteForm={handleOpenQuoteFormWithDefaults} />
-            )}
-            {activeTab === 'auditor' && (
-              <BillAnalyzer onOpenQuoteForm={handleOpenQuoteFormWithDefaults} />
-            )}
-            {activeTab === 'multisite' && (
-              <MultiSitePlanner onOpenQuoteForm={handleOpenQuoteFormWithDefaults} />
-            )}
+          {/* Estimator Container */}
+          <div className="bg-slate-900 border border-slate-800 p-8 md:p-10 space-y-8">
+            
+            {/* Toggle utility type */}
+            <div>
+              <label className="block text-[10px] font-black uppercase tracking-widest text-slate-400 mb-3.5 text-center">Select Energy Service</label>
+              <div className="flex justify-center gap-2">
+                {[
+                  { id: 'electricity', label: 'Electricity', icon: Zap },
+                  { id: 'gas', label: 'Gas', icon: Flame },
+                  { id: 'both', label: 'Gas + Electricity', icon: Building2 }
+                ].map((item) => (
+                  <button
+                    key={item.id}
+                    onClick={() => setEstFuel(item.id as any)}
+                    className={`flex items-center gap-2 px-5 py-3 rounded-none text-[10px] font-bold uppercase tracking-widest transition-colors cursor-pointer border ${
+                      estFuel === item.id 
+                        ? 'bg-brand-red border-brand-red text-white' 
+                        : 'border-slate-800 bg-slate-950 text-slate-400 hover:text-slate-200'
+                    }`}
+                  >
+                    <item.icon className="w-4 h-4" />
+                    {item.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Slider for monthly spend */}
+            <div className="space-y-3">
+              <div className="flex justify-between items-end">
+                <label className="text-[10px] font-black uppercase tracking-widest text-slate-400">Est. Monthly Spend</label>
+                <span className="font-mono text-xl font-black text-white">&pound;{estSpend.toLocaleString()} <span className="text-[10px] text-slate-500 font-sans font-bold">/ MONTH</span></span>
+              </div>
+              
+              <input
+                type="range"
+                min="100"
+                max="10000"
+                step="100"
+                value={estSpend}
+                onChange={(e) => setEstSpend(Number(e.target.value))}
+                className="w-full h-2 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-brand-red"
+              />
+              
+              <div className="flex justify-between text-[9px] text-slate-500 font-bold uppercase">
+                <span>&pound;100</span>
+                <span>&pound;5,000</span>
+                <span>&pound;10,000+</span>
+              </div>
+            </div>
+
+            {/* Results Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-slate-800/80">
+              <div className="bg-slate-950 p-4 border border-slate-800/60 text-center">
+                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest block">Projected Annual Cost</span>
+                <span className="text-xl font-mono font-black text-slate-300 mt-1 block">&pound;{(estSpend * 12).toLocaleString()}</span>
+              </div>
+              <div className="bg-slate-950 p-4 border border-slate-800/60 text-center">
+                <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest block">CGE Rate Estimate</span>
+                <span className="text-xl font-mono font-black text-slate-300 mt-1 block">&pound;{Math.round(estSpend * 12 * 0.65).toLocaleString()}</span>
+              </div>
+              <div className="bg-brand-red/5 p-4 border border-brand-red/15 text-center relative overflow-hidden group">
+                <span className="text-[9px] text-brand-coral font-bold uppercase tracking-widest block">Estimated Cash Savings</span>
+                <span className="text-2xl font-mono font-black text-brand-red mt-0.5 block animate-pulse">&pound;{Math.round(estSpend * 12 * 0.35).toLocaleString()}</span>
+              </div>
+            </div>
+
+            {/* Estimate CTA Button */}
+            <div className="text-center pt-2">
+              <button
+                onClick={() => handleOpenQuoteFormWithDefaults({ fuelType: estFuel })}
+                className="bg-brand-red hover:bg-brand-orange text-white font-bold text-xs uppercase tracking-widest px-8 py-4 rounded-none cursor-pointer transition-colors border border-brand-orange/20 inline-flex items-center gap-2"
+              >
+                Secure Your Savings Deal
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+
           </div>
 
         </div>

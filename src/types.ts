@@ -1,13 +1,14 @@
 export interface EnergyLead {
   id: string;
-  businessName: string;
+  businessName?: string;
   contactName: string;
   phone: string;
   email: string;
+  postcode?: string;
   fuelType: 'electricity' | 'gas' | 'both';
-  contractType: 'renewal' | 'new' | 'multisite';
-  numSites: number;
-  currentAnnualSpend: number;
+  contractType?: 'renewal' | 'new' | 'multisite';
+  numSites?: number;
+  currentAnnualSpend?: number;
   currentSupplier?: string;
   contractExpiryDate?: string;
   additionalDetails?: string;
