@@ -112,17 +112,19 @@ export default function App() {
 
           {/* Contact & CTA Buttons */}
           <div className="hidden lg:flex items-center gap-6">
-            <div className="text-right">
-              <span className="text-[9px] text-gray-400 font-bold block uppercase tracking-widest">Direct Broker Desk</span>
-              <a href={`tel:${CONTACT_INFO.phone}`} className="text-sm font-black text-brand-dark-blue hover:text-brand-light-blue flex items-center gap-1.5 transition-colors uppercase tracking-wider">
-                <Phone className="w-4 h-4 text-brand-red" />
-                {CONTACT_INFO.phone}
-              </a>
+            <div className="flex items-center gap-3">
+              <Phone className="w-5 h-5 text-brand-red flex-shrink-0" />
+              <div className="text-left leading-none">
+                <span className="text-[8px] md:text-[9px] text-gray-400 font-black block uppercase tracking-widest mb-1 leading-none">Direct Broker Desk</span>
+                <a href={`tel:${CONTACT_INFO.phone}`} className="text-xs md:text-sm font-black text-brand-dark-blue hover:text-brand-light-blue transition-colors uppercase tracking-wider leading-none">
+                  {CONTACT_INFO.phone}
+                </a>
+              </div>
             </div>
             
             <button
               onClick={handleOpenGeneralQuote}
-              className="bg-brand-red hover:bg-brand-orange text-white font-bold text-xs uppercase tracking-widest px-5 py-3 rounded-none cursor-pointer transition-colors border border-brand-orange/20"
+              className="bg-brand-red hover:bg-brand-orange text-white font-black text-xs uppercase tracking-[0.15em] px-6 py-3.5 rounded-none cursor-pointer transition-all border border-brand-orange/20"
             >
               Get Free Quote
             </button>

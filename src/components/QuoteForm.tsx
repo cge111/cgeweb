@@ -244,9 +244,12 @@ export default function QuoteForm({ isOpen, onClose, defaultData, onSubmitSucces
               </div>
               
               <div>
-                <h4 className="text-lg font-black uppercase tracking-wider text-slate-900 mb-1">Quote Requested</h4>
-                <p className="text-xs uppercase tracking-wider font-semibold text-slate-500 max-w-sm mx-auto">
-                  Your reference ID is <strong className="text-brand-red font-mono font-black">{leadId}</strong>. A dedicated CGE energy procurement expert is on the case.
+                <h4 className="text-lg font-black uppercase tracking-wider text-brand-dark-blue mb-1">Query Received</h4>
+                <p className="text-xs uppercase tracking-wider font-semibold text-slate-600 max-w-sm mx-auto leading-relaxed">
+                  We have received your query. One of our Energy Experts will contact you soon.
+                </p>
+                <p className="text-[10px] text-slate-400 mt-2 font-semibold uppercase tracking-wider">
+                  Reference ID: <strong className="text-brand-red font-mono">{leadId}</strong>
                 </p>
               </div>
 
